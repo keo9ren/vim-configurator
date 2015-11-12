@@ -1,0 +1,58 @@
+#!/bin/bash
+interface="gtk"
+usrname="oliver"
+clang="yes"
+dir="~/.vim"
+
+#apt-get -y update
+#apt-get -y upgrade
+
+apps="git python2.7 exuberant-ctags curl"
+apt-get install $apps
+
+#package manager
+#have to include python script to generate vimrc
+mkdir -p ~/.vim/autoload ~/.vim/bundle && \
+curl -LSso ~/.vim/autoload/pathogen.vim https://tpo.pe/pathogen.vim
+
+
+if [ "$clang" == "yes" ]
+then
+ver="3.6"
+apt-get install clang-$ver clang-format-$ver cmake
+ln -s /usr/bin/clang-$ver /usr/bin/clang
+ln -s /usr/bin/clang++-$ver /usr/bin/clang++
+
+cd  /home/$usrname/.vim/bundle
+#clang-format
+git clone https://github.com/rhysd/vim-clang-format.git
+#ycm
+git clone https://github.com/Valloric/YouCompleteMe.git
+cd YouCompleteMe
+git submodule update --init --recursive
+
+#ycm generator
+cd /home/$usrname/.vim/bundle
+git clone https://github.com/rdnetto/YCM-Generator.git
+
+else 
+echo "Non clang mode" 
+fi
+
+
+if [ "$interface" == "gtk" ]
+then 
+echo "$interface"
+#apt-get -y install vim-gtk
+elif [ "$interface" == "gnome" ]
+then
+echo "$interface"
+#apt-get -y install vim-gnome
+else
+echo "Not known: $interface"
+fi
+
+
+
+
+
