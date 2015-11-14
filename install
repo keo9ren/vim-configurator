@@ -4,7 +4,7 @@ interface="gtk"
 usrname="osboxes"
 clang="true"
 config_vimrc="true"
-easytags="false"
+easytags="true"
 latex="true"
 dir="~/.vim"
 
@@ -88,11 +88,9 @@ fi
 
 if [ "$latex" == "true" ]
 then
-#apt-get install texlive-base texlive-extra-utils
-#
 #vim-latex
 wget -c http://sourceforge.net/projects/vim-latex/files/snapshots/vim-latex-1.8.23-20141116.812-gitd0f31c9.tar.gz
-tar -xvjf vim-latex-1.8.23-20141116.812-gitd0f31c9.tar.gz
+tar -xvzf vim-latex-1.8.23-20141116.812-gitd0f31c9.tar.gz
 fi
 
 echo "To access all help files restart vim and run :Helptags"
