@@ -42,6 +42,7 @@ def main(argv):
             print clang
             install("clang-3.7")
             install("clang-format-3.7")
+            subprocess.call(['ln','-s','/usr/bin/clang-format-3.7','/usr/bin/clang-format'])
             install("cmake")
         elif opt in ("-d","--desktop"):
             desktop = arg
