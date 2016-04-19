@@ -10,6 +10,7 @@
              airline-themes
              evil-leader
              evil-search-highlight-persist
+             evil-terminal-cursor-changer
 			 flycheck
 			 company
 			 auctex
@@ -20,12 +21,16 @@
 			 helm
 			 helm-projectile
              helm-cscope
+             helm-ls-git
+             helm-dictionary
 			 smooth-scrolling
              fill-column-indicator
              ;;color-identifiers-mode
              ;;rainbow-delimiters
              idea-darkula-theme
              color-theme-approximate
+             clang-format
+             zeal-at-point
 			 ))
 
 (defun cfg:install-packages ()
@@ -97,7 +102,7 @@
                             (set-fill-column 100)))
 (add-hook 'c-mode-hook (lambda () 
                             (fci-mode)
-                            (set-fill-column 100)))
+                            (set-fill-column 80)))
 
 
 (require 'company)
@@ -134,6 +139,9 @@
 (require 'company-auctex)
 (company-auctex-init)
 
+;; flyspell 
+;;
+
 ;;; Anpassungen für RefTeX
 (require 'reftex)
 (add-hook 'LaTeX-mode-hook 'turn-on-reftex) 
@@ -153,26 +161,9 @@
 
 ;;hunspell
 (require 'ispell)
-(add-to-list 'ispell-local-dictionary-alist '("deutsch-hunspell"
-                                              "[[:alpha:]]"
-                                              "[^[:alpha:]]"
-                                              "[']"
-                                              t
-                                              ("-d" "de_DE"); Dictionary file name
-                                              nil
-                                              iso-8859-1))
+(setq ispell-program-name "hunspell")
+(setq ispell-local-dictionary "en_US")
 
-(add-to-list 'ispell-local-dictionary-alist '("english-hunspell"
-                                              "[[:alpha:]]"
-                                              "[^[:alpha:]]"
-                                              "[']"
-                                              t
-                                              ("-d" "en_US")
-                                              nil
-                                              iso-8859-1))
-
-(setq ispell-program-name "hunspell"          ; Use hunspell to correct mistakes
-      ispell-dictionary   "deutsch-hunspell") ; Default dictionary to use
 
 
 (require 'helm-config)
@@ -253,26 +244,74 @@
      (define-key helm-cscope-mode-map (kbd "M-g M-c") 'helm-cscope-find-called-function)
      (define-key helm-cscope-mode-map (kbd "M-g M-p") 'helm-cscope-find-calling-this-funtcion)
      (define-key helm-cscope-mode-map (kbd "M-s") 'helm-cscope-select)))
+(require 'helm-ls-git)
+(global-set-key (kbd "C-<f6>") 'helm-ls-git-ls)
+(global-set-key (kbd "C-x C-d") 'helm-browse-project)
 
-;vim like scrolling
+
+(require 'helm-dictionary)
+;; sudo apt-get install trans-de-en
+
+;; display line numbers
+(require 'linum)
+(setq linum-mode t)
+                                        ;vim like scrolling
 (setq scroll-margin 5
       scroll-conservatively 9999
       scroll-step 1)
-; configure your powerline
+                                        ; configure your powerline
 (require 'powerline)
 (require 'airline-themes)
 (load-theme 'airline-sol)
 
+                                        ;(require 'clang-format)
+;;Hook function
+;;(defun clang-format-before-save ()"Add this to .emacs to clang-format on save(add-hook 'before-save-hook 'clang-format-before-save)."
+;;       (interactive)(when (eq major-mode 'c-mode) (clang-format-buffer)))
+;;use clang-format on save
+;;(add-hook 'before-save-hook 'clang-format-before-save)
+
+
+;; autoload enhanced spotiy
+(load-file "~/Documents/development/helm-spotify/helm-spotify.el")
+
+;;helm spotify has errors if called without debug-on-error set. So i wrote this wrapper
+(defun john-spotify ()
+  "wrapper for calling spotify from keyboard shortcut and removing possibility for error"
+  (interactive)
+  (setq debug-on-error t)
+  (helm-spotify)
+  (setq debug-on-error nil))
+(global-set-key (kbd "C-x M-s") 'john-spotify)
+
+(defun spotify-start ()
+  "Start the spotify server."
+  (interactive)
+  (shell-command (format "spotify --minimized &"))
+  )
+;;(get-process "spotify")
+(show-paren-mode 1)
+(setq show-paren-delay 0)
 
 
 ;; have to fct here to quit on one ESC
 
 ;;start maximised to be determinated
 
+;;browse offline documentation
+(require 'zeal-at-point)
+(global-set-key "\C-cd" 'zeal-at-point)
+
+;;org mode
+(require 'org)
+(define-key global-map "\C-cl" 'org-store-link)
+(define-key global-map "\C-ca" 'org-agenda)
+(setq org-log-done t)
 
 
 
-; should alway be the last
+
+                                        ; should alway be the last
 (require 'evil)
 (evil-mode 1)
 ;;browse visual-line
@@ -280,11 +319,11 @@
 (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line)
 ;;screen up/down
 (define-key evil-normal-state-map (kbd "C-j") (lambda ()
-						(interactive)
-						(evil-scroll-up nil)))
+                                                (interactive)
+                                                (evil-scroll-up nil)))
 (define-key evil-normal-state-map (kbd "C-k") (lambda ()
-						(interactive)
-						(evil-scroll-down nil)))
+                                                (interactive)
+                                                (evil-scroll-down nil)))
 (setq evil-move-cursor-back nil)
 ;;own leader
 (global-evil-leader-mode)
@@ -295,7 +334,11 @@
 (global-evil-search-highlight-persist t)
 ;; clean highlight leader(,) Space
 (evil-leader/set-key "u" 'evil-search-highlight-persist-remove-all)
-
+;;
+(unless (display-graphic-p) (require 'evil-terminal-cursor-changer))
+(setq evil-visual-state-cursor '("red" box))
+(setq evil-insert-state-cursor '("green" bar))
+(setq evil-emacs-state-cursor '("blue" hbar))
 
 (provide '.emacs)
 ;;; .emacs ends here
